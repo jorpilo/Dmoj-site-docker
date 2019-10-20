@@ -1,56 +1,69 @@
 FROM debian:stretch
 
-ARG PRODUCTION_BUILD 0
+# build test/production
+ENV DEBUG True
 
-ENV DB_IP
-ENV DB_USER
-ENV DB_PASS
+# Path
+ENV DMOJ_PATH /site
+
+ENV DMOJ_HOST 0.0.0.0
+ENV DMOJ_PORT 2000
+
+# DataBase options
+
+ENV DB_HOST 127.0.0.1
+ENV DB_ROOT_USER root
+ENV DB_ROOT_PASS <password>
+
+ENV DB_DMOJ_DB dmoj
+ENV DB_DMOJ_USER dmoj
+ENV DB_DMOJ_PASS <password>
+
+ENV POPULATE True
+
+# Other options
+ENV ALLOWED_HOST "0.0.0.0"
+ENV SECRET_KEY "This is not secret"
+ENV STATIC_ROOT '/site/static'
+
+#--------------------------------------
 
 RUN apt update
-RUN apt install -y git gcc g++ make python3-dev libxml2-dev libxslt1-dev zlib1g-dev gettext curl python3-pip 
+RUN apt install -y git gcc g++ make python3-dev libxml2-dev libxslt1-dev zlib1g-dev gettext curl python3-pip apt-utils
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt install -y nodejs
 RUN npm install -g sass postcss-cli autoprefixer
 
-
 # DataBase installation (check probably outside)
-RUN apt install -y mariadb-server mariadb-client default-libmysqlclient-dev
-RUN service mysql start &&\
- mysql -uroot -e "CREATE DATABASE dmoj DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;" &&\
- mysql -uroot -e "ALTER DATABASE dmoj CHARACTER SET utf8;" &&\
- mysql -uroot -e "GRANT ALL PRIVILEGES ON dmoj.* to 'dmoj'@'localhost' IDENTIFIED BY 'dmoj';"
-
+RUN apt install -y mariadb-client default-libmysqlclient-dev
+ 
 RUN pip3 install virtualenv
 RUN virtualenv dmojsite
 
-RUN git clone --recurse-submodules -j8 https://github.com/DMOJ/site.git
-WORKDIR site/
+RUN git clone --recurse-submodules -j4 https://github.com/DMOJ/site.git ${DMOJ_PATH}
+WORKDIR ${DMOJ_PATH}
 
 RUN . /dmojsite/bin/activate && pip3 install -r requirements.txt
 
-
-RUN . /dmojsite/bin/activate && pip3 install -r requirements.txt
-RUN . /dmojsite/bin/activate && pip3 install mysqlclient
-
-
-COPY local_settings.py /site/dmoj
-
-RUN . /dmojsite/bin/activate && python3 manage.py check
+RUN . /dmojsite/bin/activate && pip3 install mysqlclient sqlparse
 
 RUN . /dmojsite/bin/activate && ./make_style.sh
+
+# We should use a local setting.py maybe a volumne or a folder mount
+#ENV SECRET_KEY 'this is not secured'
+#COPY local_settings.py /site/dmoj
+
+RUN echo "STATIC_ROOT = '/site/static'" >> /site/dmoj/settings.py
 RUN . /dmojsite/bin/activate && python3 manage.py collectstatic
 RUN . /dmojsite/bin/activate && python3 manage.py compilemessages
 RUN . /dmojsite/bin/activate && python3 manage.py compilejsi18n
 
-# Migration of data (only first time) maybe should be done while building the DB
-RUN . /dmojsite/bin/activate && pip3 install sqlparse
-RUN . /dmojsite/bin/activate && service mysql start && python3 manage.py migrate
-RUN . /dmojsite/bin/activate && service mysql start && python3 manage.py loaddata navbar
-RUN . /dmojsite/bin/activate && service mysql start && python3 manage.py loaddata language_small
-RUN . /dmojsite/bin/activate && service mysql start && python3 manage.py loaddata demo
-
-RUN . /dmojsite/bin/activate && service mysql start && python3 manage.py createsuperuser
+# Production
 
 
-#
-ENTRYPOINT bash
+# Populate data (only first time)
+COPY populate.sh /populate.sh
+
+COPY docker-entry /docker-entry
+
+ENTRYPOINT ["/docker-entry"]

@@ -10,14 +10,14 @@
 # SECURITY WARNING: keep the secret key used in production secret!
 # You may use <http://www.miniwebtool.com/django-secret-key-generator/>
 # to generate this key.
-SECRET_KEY = 'This is not secured, please change it'
+SECRET_KEY = '${SECRET_KEY}'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # Change to False once you are done with runserver testing.
 
 # Uncomment and set to the domain names this site is intended to serve.
 # You must do this once you set DEBUG to False.
-ALLOWED_HOSTS = ['some_IP']
+ALLOWED_HOSTS = [${ALLOWED_HOST}]
 
 # Optional apps that DMOJ can make use of.
 INSTALLED_APPS += ()
@@ -35,10 +35,10 @@ CACHES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dmoj',
-        'USER': 'dmoj',
-        'PASSWORD': 'password',
-        'HOST': '127.0.0.1',
+        '${DB_DMOJ_DB}': 'dmoj',
+        '${DB_DMOJ_USER}': 'dmoj',
+        '${DB_DMOJ_PASS}': '<password>',
+        'HOST': '${DB_HOST}',
         'OPTIONS': {
             'charset': 'utf8mb4',
             'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
@@ -69,7 +69,6 @@ COMPRESS_JS_FILTERS = ['compressor.filters.jsmin.JSMinFilter']
 COMPRESS_STORAGE = 'compressor.storage.GzipCompressorFileStorage'
 STATICFILES_FINDERS += ('compressor.finders.CompressorFinder', )
 
-STATIC_ROOT = '/site/static'
 #########################################
 ########## Email configuration ##########
 #########################################
@@ -117,13 +116,13 @@ SERVER_EMAIL = 'Don Mills Online Judge <errors@dmoj.ca>'
 # webserver to serve the static files. This is the directory where all the
 # static files DMOJ uses will be collected to.
 # You must configure your webserver to serve this directory as /static/ in production.
-STATIC_ROOT = '/tmp/static'
+STATIC_ROOT = '/site/static'
 
 # URL to access static files.
-#STATIC_URL = '/static/'
+STATIC_URL = '/static/'
 
 # Uncomment to use hashed filenames with the cache framework.
-#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 
 ############################################
 ########## DMOJ-specific settings ##########
@@ -154,11 +153,11 @@ BAD_MAIL_PROVIDERS = set()
 # The number of submissions that a staff user can rejudge at once without
 # requiring the permission 'Rejudge a lot of submissions'.
 # Uncomment to change the submission limit.
-#REJUDGE_SUBMISSION_LIMIT = 10
+# REJUDGE_SUBMISSION_LIMIT = 10
 
 ## Event server.
 # Uncomment to enable live updating.
-#EVENT_DAEMON_USE = True
+# EVENT_DAEMON_USE = True
 
 # Uncomment this section to use websocket/daemon.js included in the site.
 #EVENT_DAEMON_POST = '<ws:// URL to post to>'
