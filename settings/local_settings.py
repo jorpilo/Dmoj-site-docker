@@ -27,6 +27,7 @@ INSTALLED_APPS += ()
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+        'LOCATION': 'site/cache'
     }
 }
 
@@ -35,9 +36,9 @@ CACHES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        '${DB_DMOJ_DB}': 'dmoj',
-        '${DB_DMOJ_USER}': 'dmoj',
-        '${DB_DMOJ_PASS}': '<password>',
+        'NAME': '${DB_DMOJ_DB}',
+        'USER': '${DB_DMOJ_USER}',
+        'PASSWORD': '${DB_DMOJ_PASS}',
         'HOST': '${DB_HOST}',
         'OPTIONS': {
             'charset': 'utf8mb4',

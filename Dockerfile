@@ -6,14 +6,12 @@ ENV DEBUG True
 # Path
 ENV DMOJ_PATH /site
 
-ENV DMOJ_HOST 0.0.0.0
+ENV DMOJ_HOST "'0.0.0.0'"
 ENV DMOJ_PORT 2000
 
 # DataBase options
 
 ENV DB_HOST 127.0.0.1
-ENV DB_ROOT_USER root
-ENV DB_ROOT_PASS <password>
 
 ENV DB_DMOJ_DB dmoj
 ENV DB_DMOJ_USER dmoj
@@ -22,7 +20,6 @@ ENV DB_DMOJ_PASS <password>
 ENV POPULATE True
 
 # Other options
-ENV ALLOWED_HOST "0.0.0.0"
 ENV SECRET_KEY "This is not secret"
 ENV STATIC_ROOT '/site/static'
 
@@ -51,7 +48,6 @@ RUN . /dmojsite/bin/activate && ./make_style.sh
 
 # We should use a local setting.py maybe a volumne or a folder mount
 #ENV SECRET_KEY 'this is not secured'
-#COPY local_settings.py /site/dmoj
 
 RUN echo "STATIC_ROOT = '/site/static'" >> /site/dmoj/settings.py
 RUN . /dmojsite/bin/activate && python3 manage.py collectstatic
@@ -64,6 +60,6 @@ RUN . /dmojsite/bin/activate && python3 manage.py compilejsi18n
 # Populate data (only first time)
 COPY populate.sh /populate.sh
 
-COPY docker-entry /docker-entry
+COPY docker-entry /docker-entry2
 
-ENTRYPOINT ["/docker-entry"]
+ENTRYPOINT ["/bin/bash"]
