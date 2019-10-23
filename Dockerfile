@@ -60,6 +60,8 @@ RUN . /dmojsite/bin/activate && python3 manage.py compilejsi18n
 # Populate data (only first time)
 COPY populate.sh /populate.sh
 
-COPY docker-entry /docker-entry2
+COPY settings/local_settings.py /tmp/local_settings.py
 
-ENTRYPOINT ["/bin/bash"]
+COPY docker-entry /docker-entry
+
+ENTRYPOINT ["/docker-entry"]

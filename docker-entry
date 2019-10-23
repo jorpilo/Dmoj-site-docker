@@ -1,23 +1,21 @@
 #!/bin/bash
 
-#ENV DB_HOST 127.0.0.1
-#ENV DB_ROOT_USER root
-#ENV DB_ROOT_PASS <password>
-
-#ENV DB_DMOJ_DB dmoj
-#ENV DB_DMOJ_USER dmoj
-#ENV DB_DMOJ_PASS <password>
-
-#ENV POPULATE True
-
-
-
 #Override local_settings
 if [ -f /tmp/settings/local_settings.py ]; then
-    cp /tmp/settings/local_settings.py /site/dmoj/local_settings.py
+	ls /tmp
+    cp /tmp/settings/local_settings.py /tmp/local_settings.py
+else
+	echo "Error file not found"
+	exit 1
 fi
 
-envsubst < $DMOJ_PATH/dmoj/local_settings.py > $DMOJ_PATH/dmoj/local_settings.py
+envsubst < /tmp/local_settings.py > $DMOJ_PATH/dmoj/local_settings.py
+
+while ! mysqladmin ping -h"$DB_HOST" --silent; do
+    sleep 5
+	echo "waiting for DB"
+done
+	  
 #Activate virtenv
 . /dmojsite/bin/activate
 

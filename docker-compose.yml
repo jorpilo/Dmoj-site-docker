@@ -3,16 +3,20 @@ version: '3.1'
 services:
 
   db:
-    image: mysql:5.7
+    image: mariadb
     restart: always
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      - MYSQL_ROOT_PASSWORD='root_pass'
-      - MYSQL_DATABASE='dmoj_db'
-      - MYSQL_USER='dmoj'
-      - MYSQL_PASSWORD='dmoj_password'
-    volume:
-      - /home/jorpilo/codejam/Dmoj-site-docker/data:/var/lib/mysql
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: dmoj_db
+      MYSQL_USER: dmoj
+      MYSQL_PASSWORD: dmoj_password
+    labels:
+        character-set-server: "utf8mb4"
+        collation-server: "utf8mb4_unicode_ci"
+    volumes:
+      - dmoj-db-vl:/var/lib/mysql
+
   adminer:
     image: adminer
     restart: always
@@ -20,24 +24,25 @@ services:
       - "8080:8080"
     depends_on:
       - db
-      
+
   dmoj_site:
     build: .
     restart: always
     ports:
-      - 2000:2000
+      - "2000:2000"
     environment:
-      - DMOJ_PORT='2000'
-      - DB_HOST='db'
-      - DB_DMOJ_DB='dmoj_db'
-      - DB_DMOJ_PASS='dmoj_password'
-      - SECRET_KEY="This is not secret"
-      - DEBUG='True' 
+      DMOJ_PORT: "2000"
+      DB_HOST: db
+      DB_DMOJ_DB: dmoj_db
+      DB_DMOJ_PASS: dmoj_password
+      SECRET_KEY: "This is not secret"
+      DEBUG: "True"
+      ALLOWED_HOST: "'*'"
     volumes:
-      - /home/jorpilo/codejam/Dmoj-site-docker/settings:/tmp/settings
+      - ./settings:/tmp/settings
     depends_on:
       - db
-    entrypoint: /bin/bash  
+    entrypoint: /bin/bash
 
 volumes:
   dmoj-db-vl:
