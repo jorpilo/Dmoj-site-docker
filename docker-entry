@@ -2,7 +2,6 @@
 
 #Override local_settings
 if [ -f /tmp/settings/local_settings.py ]; then
-	ls /tmp
     cp /tmp/settings/local_settings.py /tmp/local_settings.py
 else
 	echo "Error file not found"
@@ -12,25 +11,33 @@ fi
 envsubst < /tmp/local_settings.py > $DMOJ_PATH/dmoj/local_settings.py
 
 while ! mysqladmin ping -h"$DB_HOST" --silent; do
-    sleep 5
+  sleep 5
 	echo "waiting for DB"
 done
-	  
+echo "Connected with db"
+
 #Activate virtenv
-. /dmojsite/bin/activate
+source /dmojsite/bin/activate || exit 1
+echo "virtenv activated"
 
 # create DB and transfer
 python3 $DMOJ_PATH/manage.py migrate
-if [ "${POPULATE}" = "True" ]; then /populate.sh; fi
+if [ "${POPULATE}" = "True" ]; then
+  /populate.sh
+else
+  echo "Skip populating DB"
+fi
 
 echo "Checking"
 python3 $DMOJ_PATH/manage.py check || exit 1
-echo "runbridged"
-python3 $DMOJ_PATH/manage.py runbridged || exit 1
+#echo "runbridged"
+#python3 $DMOJ_PATH/manage.py runbridged || exit 1
 
+
+echo "Running on ${DMOJ_HOST}:${DMOJ_PORT}"
 if [ "${DEBUG}" = "True" ]; then 
-  echo "Testing mode"
-  python $DMOJ_PATH/manage.py runserver ${DMOJ_HOST}:${DMOJ_PORT}
+  echo "Testing mode on ${DMOJ_HOST}:${DMOJ_PORT}"
+  python3 $DMOJ_PATH/manage.py runserver ${DMOJ_HOST}:${DMOJ_PORT}
 fi
 
 

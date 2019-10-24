@@ -27,7 +27,6 @@ INSTALLED_APPS += ()
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
-        'LOCATION': 'site/cache'
     }
 }
 
@@ -142,7 +141,7 @@ TERMS_OF_SERVICE_URL = '//dmoj.ca/tos'  # Use a flatpage.
 BRIDGED_JUDGE_ADDRESS = [('localhost', 9999)]
 
 # The bridged daemon bind address and port to communicate with the site.
-#BRIDGED_DJANGO_ADDRESS = [('localhost', 9998)]
+# BRIDGED_DJANGO_ADDRESS = [('localhost', 9998)]
 
 ## DMOJ features.
 # Set to True to enable full-text searching for problems.

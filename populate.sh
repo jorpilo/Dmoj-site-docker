@@ -2,7 +2,7 @@
 
 # Populate the DB with initial data
 
-. /dmojsite/bin/activate
+source /dmojsite/bin/activate
 
 python3 $DMOJ_PATH/manage.py loaddata navbar
 python3 $DMOJ_PATH/manage.py loaddata language_small

@@ -6,7 +6,7 @@ ENV DEBUG True
 # Path
 ENV DMOJ_PATH /site
 
-ENV DMOJ_HOST "'0.0.0.0'"
+ENV DMOJ_HOST "0.0.0.0"
 ENV DMOJ_PORT 2000
 
 # DataBase options
