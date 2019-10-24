@@ -1,4 +1,4 @@
-version: '3.7'
+version: '2.4'
 # Please check parameters
 # The following parameters must be the same
 # db:MYSQL_DATABASE = dmoj_site:DB_DMOJ_DB
@@ -32,15 +32,15 @@ services:
       - "8080:8080"
 
   dmoj_site:
-    build: .
+    build: site/
     depends_on:
-        - db
-    restart: always
+      - db
     ports:
       - "2020:80"
+      - "4000:4000"
     environment:
       DMOJ_HOST: "0.0.0.0"
-      DMOJ_PORT: "2020"
+      DMOJ_PORT: "80"
       DB_HOST: db
       DB_DMOJ_USER: dmoj
       DB_DMOJ_DB: dmoj_db
@@ -51,7 +51,15 @@ services:
       POPULATE: "False"
     volumes:
       - ./settings:/tmp/settings
+      - pdfcache:/site/pdfcache
+
+  dmoj_judge:
+    image: dmoj/judge-small
+    command: ["dmoj_site","judge1","key"]
+    depends_on:
+      - dmoj_site
 
 
 volumes:
   dmoj-db-vl:
+  pdfcache:

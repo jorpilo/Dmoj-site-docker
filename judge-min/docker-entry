@@ -1,0 +1,7 @@
+#!/bin/bash
+
+sleep 5
+
+/judge/docker-entry $DMOJ_HOST $JUDGE_NAME $KEY
+
+sleep infinity

@@ -23,9 +23,17 @@ while ! mysqladmin ping -h"$DB_HOST" --silent; do
 done
 echo "Connected with db"
 
-#Activate virtenv
-source /dmojsite/bin/activate || exit 1
-echo "virtenv activated"
+
+# supervisorctl
+envsubst < /tmp/site.conf > /etc/supervisor/conf.d/site.conf
+envsubst < /tmp/bridged.conf > /etc/supervisor/conf.d/bridged.conf
+envsubst < /tmp/wsevent.conf > /etc/supervisor/conf.d/wsevent.conf
+
+# Compile
+./make_style.sh
+echo "yes" | python3 manage.py collectstatic
+python3 manage.py compilemessages
+python3 manage.py compilejsi18n
 
 # create DB and transfer
 python3 $DMOJ_PATH/manage.py migrate
@@ -38,7 +46,8 @@ fi
 echo "Checking"
 python3 $DMOJ_PATH/manage.py check || exit 1
 
-
+chown dmoj:dmoj -R /site
+## Starting everything
 
 echo "Running on ${DMOJ_HOST}:${DMOJ_PORT}"
 if [ "${DEBUG}" = "True" ]; then 
@@ -51,18 +60,16 @@ else
   echo "Final mode on ${DMOJ_HOST}:${DMOJ_PORT}"
   #echo "Starting uwsgi"
   #uwsgi --ini uwsgi.ini
-#
+  
   echo "Updating supervisord"
-  chown bridged:bridged /var/log/bridge/bridged.log
+  chown dmoj:dmoj /var/log/bridge/bridged.log
   service supervisor start
   supervisorctl update
   sleep 1
   supervisorctl status
-#
+  #
   echo "Starting ngix"
   service nginx start
-  #
-  #service nginx reload
-  #
-  /bin/bash
+
 fi
+sleep infinity

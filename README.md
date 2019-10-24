@@ -18,10 +18,12 @@ Right now the docker-compose build the image, the idea is once is done, to uploa
 
 ## TO DO
  -  ~~Separate DB~~
- - Persitance site // Ask what else needs to be persisted
+ - ~~Persitance site~~
  - ~~Configuration of local settings~~
  - ~~Migration~~
  - ~~Docker compose~~
- - Add production setting
+ - ~~Add production setting~~
+ - Add a judge
+ - Maybe separate nginx and communicate using sockets
  - Upload image to docker site
 
