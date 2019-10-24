@@ -23,6 +23,9 @@ ENV POPULATE True
 ENV SECRET_KEY "This is not secret"
 ENV STATIC_ROOT '/site/static'
 
+# ngix
+ENV SERVER_NAME '_'
+
 #--------------------------------------
 
 RUN apt update
@@ -55,6 +58,30 @@ RUN . /dmojsite/bin/activate && python3 manage.py compilemessages
 RUN . /dmojsite/bin/activate && python3 manage.py compilejsi18n
 
 # Production
+RUN . /dmojsite/bin/activate && pip3 install uwsgi 
+RUN apt install -y supervisor
+RUN apt install -y nginx
+
+
+COPY settings/uwsgi.ini /tmp/uwsgi.ini
+
+# Configuration of supervisord
+
+COPY settings/site.conf /etc/supervisor/conf.d/site.conf
+RUN echo "\ndirectory=${DMOJ_PATH}" >> /etc/supervisor/conf.d/site.conf
+
+COPY settings/bridged.conf /etc/supervisor/conf.d/bridged.conf
+
+RUN useradd -r -U bridged
+RUN mkdir /var/log/bridge && chown bridged:bridged /var/log/bridge
+RUN echo "\ndirectory=${DMOJ_PATH}" >> /etc/supervisor/conf.d/bridged.conf
+
+# ngix configuration
+COPY settings/nginx.conf /tmp/nginx.conf
+
+# Events
+#RUN npm install qu ws simplesets
+#RUN . /dmojsite/bin/activate && pip3 install websocket-client
 
 
 # Populate data (only first time)
@@ -63,5 +90,7 @@ COPY populate.sh /populate.sh
 COPY settings/local_settings.py /tmp/local_settings.py
 
 COPY docker-entry /docker-entry
+
+ENV DOLLAR='$'
 
 ENTRYPOINT ["/docker-entry"]

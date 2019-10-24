@@ -13,7 +13,7 @@
 SECRET_KEY = '${SECRET_KEY}'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Change to False once you are done with runserver testing.
+DEBUG = ${DEBUG}  # Change to False once you are done with runserver testing.
 
 # Uncomment and set to the domain names this site is intended to serve.
 # You must do this once you set DEBUG to False.
@@ -138,10 +138,10 @@ TERMS_OF_SERVICE_URL = '//dmoj.ca/tos'  # Use a flatpage.
 # The judge connection address and port; where the judges will connect to the site.
 # You should change this to something your judges can actually connect to
 # (e.g., a port that is unused and unblocked by a firewall).
-BRIDGED_JUDGE_ADDRESS = [('localhost', 9999)]
+BRIDGED_JUDGE_ADDRESS = [('127.0.0.1', 9999)]
 
 # The bridged daemon bind address and port to communicate with the site.
-# BRIDGED_DJANGO_ADDRESS = [('localhost', 9998)]
+BRIDGED_DJANGO_ADDRESS = [('127.0.0.1', 9998)]
 
 ## DMOJ features.
 # Set to True to enable full-text searching for problems.
@@ -247,7 +247,7 @@ LOGGING = {
         'bridge': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '<desired bridge log path>',
+            'filename': '/var/log/bridge/bridged.log',
             'maxBytes': 10 * 1024 * 1024,
             'backupCount': 10,
             'formatter': 'file',

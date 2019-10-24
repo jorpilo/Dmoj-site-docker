@@ -1,4 +1,10 @@
-version: '0.1'
+version: '3.7'
+# Please check parameters
+# The following parameters must be the same
+# db:MYSQL_DATABASE = dmoj_site:DB_DMOJ_DB
+# db:MYSQL_USER = dmoj_site:DB_DMOJ_USER
+# db:MYSQL_PASSWORD = dmoj_site:DB_DMOJ_USER
+
 
 services:
 
@@ -19,31 +25,33 @@ services:
 
   adminer:
     image: adminer
+    depends_on:
+        - db
     restart: always
     ports:
       - "8080:8080"
-    depends_on:
-      - db
 
   dmoj_site:
     build: .
+    depends_on:
+        - db
     restart: always
     ports:
-      - "2020:2020"
+      - "2020:80"
     environment:
       DMOJ_HOST: "0.0.0.0"
       DMOJ_PORT: "2020"
       DB_HOST: db
+      DB_DMOJ_USER: dmoj
       DB_DMOJ_DB: dmoj_db
       DB_DMOJ_PASS: dmoj_password
       SECRET_KEY: "This is not secret"
-      DEBUG: "True"
+      DEBUG: "False"
       ALLOWED_HOST: "'*'"
       POPULATE: "False"
     volumes:
       - ./settings:/tmp/settings
-    depends_on:
-      - db
+
 
 volumes:
   dmoj-db-vl:

@@ -1,14 +1,21 @@
 #!/bin/bash
 
-#Override local_settings
+#Override settings
 if [ -f /tmp/settings/local_settings.py ]; then
     cp /tmp/settings/local_settings.py /tmp/local_settings.py
-else
-	echo "Error file not found"
-	exit 1
 fi
-
 envsubst < /tmp/local_settings.py > $DMOJ_PATH/dmoj/local_settings.py
+
+if [ -f /tmp/settings/nginx.conf ]; then
+    cp /tmp/settings/nginx.conf /tmp/ngix.conf
+fi
+envsubst < /tmp/nginx.conf > /etc/nginx/sites-available/dmoj
+ln -s /etc/nginx/sites-available/dmoj /etc/nginx/sites-enabled/dmoj
+
+if [ -f /tmp/settings/uwsgi.ini ]; then
+    cp /tmp/settings/uwsgi.ini /tmp/uwsgi.ini
+fi
+envsubst < /tmp/uwsgi.ini > ./uwsgi.ini
 
 while ! mysqladmin ping -h"$DB_HOST" --silent; do
   sleep 5
@@ -30,15 +37,32 @@ fi
 
 echo "Checking"
 python3 $DMOJ_PATH/manage.py check || exit 1
-#echo "runbridged"
-#python3 $DMOJ_PATH/manage.py runbridged || exit 1
+
 
 
 echo "Running on ${DMOJ_HOST}:${DMOJ_PORT}"
 if [ "${DEBUG}" = "True" ]; then 
   echo "Testing mode on ${DMOJ_HOST}:${DMOJ_PORT}"
-  python3 $DMOJ_PATH/manage.py runserver ${DMOJ_HOST}:${DMOJ_PORT}
+  python3 $DMOJ_PATH/manage.py runserver ${DMOJ_HOST}:${DMOJ_PORT} &
+
+  echo "testing runbridged"
+  python3 $DMOJ_PATH/manage.py runbridged || exit 1
+else
+  echo "Final mode on ${DMOJ_HOST}:${DMOJ_PORT}"
+  #echo "Starting uwsgi"
+  #uwsgi --ini uwsgi.ini
+#
+  echo "Updating supervisord"
+  chown bridged:bridged /var/log/bridge/bridged.log
+  service supervisor start
+  supervisorctl update
+  sleep 1
+  supervisorctl status
+#
+  echo "Starting ngix"
+  service nginx start
+  #
+  #service nginx reload
+  #
+  /bin/bash
 fi
-
-
-
